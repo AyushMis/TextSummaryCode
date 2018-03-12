@@ -1,0 +1,156 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from nltk.stem.wordnet import WordNetLemmatizer\n",
+    "from nltk.tokenize import word_tokenize\n",
+    "from nltk.corpus import stopwords\n",
+    "from collections import Counter\n",
+    "import nbimporter\n",
+    "import Utilities as utility\n",
+    "from tqdm import tqdm\n",
+    "import collections\n",
+    "import imp\n",
+    "import warnings\n",
+    "import numpy as np\n",
+    "import nltk\n",
+    "import math\n",
+    "import sys\n",
+    "warnings.filterwarnings(\"ignore\")\n",
+    "import gensim"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sentence_distance = utility.loadObj('sentence_distance')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "clean_sentences = utility.loadObj('clean_semantic_sentences')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "scored_sentences = utility.loadObj('RakeSentencesScore')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "IndexError",
+     "evalue": "index 119 is out of bounds for axis 0 with size 119",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mIndexError\u001b[0m                                Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-27-6784713cc6c1>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m()\u001b[0m\n\u001b[1;32m      4\u001b[0m     \u001b[0mtemp\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;36m0.0\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      5\u001b[0m     \u001b[0;32mfor\u001b[0m \u001b[0mj\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mrange\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mlen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mscored_sentences\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 6\u001b[0;31m         \u001b[0mscore_temp\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mscored_sentences\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mj\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;36m0\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m*\u001b[0m\u001b[0msentence_distance\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mi\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mj\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      7\u001b[0m         \u001b[0mtemp\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mtemp\u001b[0m \u001b[0;34m+\u001b[0m \u001b[0mscore_temp\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      8\u001b[0m     \u001b[0maverage_sentence_distance\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mtemp\u001b[0m\u001b[0;34m/\u001b[0m\u001b[0mlen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0msentence_distance\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;31mIndexError\u001b[0m: index 119 is out of bounds for axis 0 with size 119"
+     ]
+    }
+   ],
+   "source": [
+    "average_sentence_distance = 0\n",
+    "original_sequence = {}\n",
+    "for i in range(len(scored_sentences)):\n",
+    "    temp = 0.0\n",
+    "    for j in range(len(scored_sentences)):\n",
+    "        score_temp = scored_sentences[j][0]*sentence_distance[i][j]\n",
+    "        temp = temp + score_temp\n",
+    "    average_sentence_distance = temp/len(sentence_distance)\n",
+    "    original_sequence[i] = average_sentence_distance"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ordered_dic = collections.OrderedDict(sorted(original_sequence.items(), key=lambda x: x[1]))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Enter the compression ratio: 30\n"
+     ]
+    }
+   ],
+   "source": [
+    "compression_ratio = int(input('Enter the compression ratio: '))\n",
+    "num_of_sentences = (compression_ratio*len(original_sequence))//100"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "summary = []\n",
+    "i = 1\n",
+    "for index in ordered_dic:\n",
+    "    summary.append(clean_sentences[index])\n",
+    "    if i == num_of_sentences:\n",
+    "        break\n",
+    "    i += 1\n",
+    "summary = ' '.join(summary)\n",
+    "utility.saveObj(summary,'WeightedWmdSummary')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
